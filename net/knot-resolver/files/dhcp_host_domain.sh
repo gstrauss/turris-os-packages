@@ -43,8 +43,8 @@ reload_hints () {
 }
 
 dhcp_leases_file=$(uci get dhcp.@dnsmasq[0].leasefile)
-hosts_file=$(uci get resolver.kresd.hostname_config)
-
+# hosts_file=$(uci get resolver.kresd.hostname_config)
+hosts_file=$DEFAULT_RUNDIR/hosts
 expand_hosts=$(uci get dhcp.@dnsmasq[0].expandhosts)
 local_domain=$(uci get dhcp.@dnsmasq[0].local| sed 's|/||g')
 resolver=$(uci get resolver.common.prefered_resolver)
