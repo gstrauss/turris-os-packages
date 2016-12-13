@@ -95,6 +95,15 @@ set_local_host() {
 	fi
 }
 
+set_local_hostname() {
+	hostname_file="$1"
+	if [ -f "$hostname_file" ]; then
+		cat $hostname_file >> $DEFAULT_RUNDIR/hosts
+	else
+		echo "# Error! $hostname_file not found !">>$DEFAULT_RUNDIR/hosts
+	fi
+}
+
 load_uci_config_dhcp() {
 	config_load dhcp
 	config_foreach get_dhcp_expand_hosts dnsmasq
@@ -194,11 +203,10 @@ load_uci_config_kresd() {
 	config_get_bool log_stdout "$section" log_stdout  1
 	procd_set_param stdout $log_stdout
 
-	# hostnames for local DNS
-	config_get hostname_config "$section" hostname_config "/etc/hosts"
-	if [ -e "$hostname_config" ]; then
-		set_param_func "hints.config" "'$hostname_config'"
-	fi
+	# multiple hostnames for local DNS
+	rm $DEFAULT_RUNDIR/hosts
+	config_list_foreach "$section" hostname_config set_local_hostname
+	set_param_func "hints.config" "'$DEFAULT_RUNDIR/hosts'"
 }
 
 run_instance() {
